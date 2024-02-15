@@ -1,5 +1,10 @@
 const BASEURL = "http://localhost:5173";
 const COINOPTION = "CoinA";
+const COINQUANTITY = 3;
+const classes = {
+  ticketName: ".ticket-name",
+  inventoryItem: ".inventory-item",
+};
 
 describe("onLoad", () => {
   it("should begin with a $1000 USD balance", () => {
@@ -11,19 +16,19 @@ describe("onLoad", () => {
   });
   it("should have for coin options available", () => {
     cy.visit(BASEURL);
-    cy.get(".ticket-name").should("have.length", 4);
-    cy.checkUniqueInnerText(".ticket-name");
+    cy.get(classes.ticketName).should("have.length", 4);
+    cy.checkUniqueInnerText(classes.ticketName);
   });
 });
 
 describe("after buying three coins", () => {
   const buyCoins = async (coinOption: string) => {
-    cy.get(".ticket-name")
+    cy.get(classes.ticketName)
       .contains(coinOption)
       .parent()
       .find("input")
-      .type("3");
-    cy.get(".ticket-name")
+      .type(`${COINQUANTITY}`);
+    cy.get(classes.ticketName)
       .contains(coinOption)
       .parent()
       .contains("button", "Buy")
@@ -61,7 +66,7 @@ describe("after buying three coins", () => {
   it("coins owned has incremented by the quantity provided", async () => {
     cy.visit(BASEURL);
     await buyCoins(COINOPTION);
-    cy.get(".inventory-item")
+    cy.get(classes.inventoryItem)
       .contains("div", COINOPTION)
       .parent()
       .then(async (parentElement) => {
@@ -70,21 +75,21 @@ describe("after buying three coins", () => {
           { selector: "div", order: 1 },
           ["Coins owned: "]
         );
-        expect(coinsOwned).to.equal(3);
+        expect(coinsOwned).to.equal(COINQUANTITY);
         await buyCoins(COINOPTION);
         const newCoinsOwned = getValue(
           parentElement,
           { selector: "div", order: 1 },
           ["Coins owned: "]
         );
-        expect(newCoinsOwned).to.equal(6);
+        expect(newCoinsOwned).to.equal(COINQUANTITY * 2);
       });
   });
   it("market value correctly reflects the cost per coin", async () => {
     cy.visit(BASEURL);
     await buyCoins(COINOPTION);
 
-    cy.get(".ticket-name")
+    cy.get(classes.ticketName)
       .contains(COINOPTION)
       .parent()
       .then((parentElement) => {
@@ -96,7 +101,7 @@ describe("after buying three coins", () => {
           [" / coins", "$"]
         );
 
-        cy.get(".inventory-item")
+        cy.get(classes.inventoryItem)
           .contains("div", COINOPTION)
           .parent()
           .then((parentElement1) => {
