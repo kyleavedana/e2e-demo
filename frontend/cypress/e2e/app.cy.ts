@@ -50,7 +50,7 @@ describe("after buying three coins", () => {
       .contains("CoinA")
       .parent()
       .then((parentElement1) => {
-        let price = parentElement1
+        let price: string | number = parentElement1
           .find(".ticket-price")
           .text()
           .trim()
@@ -62,7 +62,7 @@ describe("after buying three coins", () => {
           .contains("div", "CoinA")
           .parent()
           .then((parentElement) => {
-            let coinsOwned = parentElement
+            let coinsOwned: string | number = parentElement
               .find("div")
               .eq(1)
               .text()
@@ -70,7 +70,7 @@ describe("after buying three coins", () => {
               .replace("Coins owned: ", "");
             coinsOwned = parseInt(coinsOwned);
 
-            let marketValue = parentElement
+            let marketValue: string | number = parentElement
               .find("div")
               .eq(2)
               .text()
@@ -78,6 +78,7 @@ describe("after buying three coins", () => {
               .replace("Market value: $", "");
             marketValue = parseInt(marketValue);
 
+            if (typeof price !== "number") throw new Error("NaN");
             expect(marketValue).to.equal(coinsOwned * price);
           });
       });
