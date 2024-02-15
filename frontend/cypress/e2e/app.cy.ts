@@ -10,7 +10,7 @@ describe("onLoad", () => {
     });
   });
   it("should have for coin options available", () => {
-    cy.visit("http://localhost:5173/");
+    cy.visit(BASEURL);
     cy.get(".ticket-name").should("have.length", 4);
     cy.checkUniqueInnerText(".ticket-name");
   });
