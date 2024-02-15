@@ -1,4 +1,5 @@
 const BASEURL = "http://localhost:5173";
+const COINOPTION = "CoinA";
 
 describe("onLoad", () => {
   it("should begin with a $1000 USD balance", () => {
@@ -16,10 +17,14 @@ describe("onLoad", () => {
 });
 
 describe("after buying three coins", () => {
-  const buyCoins = async () => {
-    cy.get(".ticket-name").contains("CoinA").parent().find("input").type("3");
+  const buyCoins = async (coinOption: string) => {
     cy.get(".ticket-name")
-      .contains("CoinA")
+      .contains(coinOption)
+      .parent()
+      .find("input")
+      .type("3");
+    cy.get(".ticket-name")
+      .contains(coinOption)
       .parent()
       .contains("button", "Buy")
       .click();
@@ -55,21 +60,25 @@ describe("after buying three coins", () => {
 
   it("coins owned has incremented by the quantity provided", async () => {
     cy.visit(BASEURL);
-    await buyCoins();
+    await buyCoins(COINOPTION);
     cy.get(".inventory-item")
-      .contains("div", "CoinA")
+      .contains("div", COINOPTION)
       .parent()
       .then((parentElement) => {
-        const coinsOwned = parentElement.find("div").eq(1).text().trim();
-        expect(coinsOwned).to.equal("Coins owned: 3");
+        const coinsOwned = getValue(
+          parentElement,
+          { selector: "div", order: 1 },
+          ["Coins owned: "]
+        );
+        expect(coinsOwned).to.equal(3);
       });
   });
   it("market value correctly reflects the cost per coin", async () => {
     cy.visit(BASEURL);
-    await buyCoins();
+    await buyCoins(COINOPTION);
 
     cy.get(".ticket-name")
-      .contains("CoinA")
+      .contains(COINOPTION)
       .parent()
       .then((parentElement) => {
         const price = getValue(
@@ -81,7 +90,7 @@ describe("after buying three coins", () => {
         );
 
         cy.get(".inventory-item")
-          .contains("div", "CoinA")
+          .contains("div", COINOPTION)
           .parent()
           .then((parentElement1) => {
             const coinsOwned = getValue(
