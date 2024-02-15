@@ -75,7 +75,6 @@ describe("testing the websocket", () => {
           inventory: Inventory[];
           time: number;
         } = data;
-        console.log(result);
         const amountOwned = result.inventory[1].amountOwned;
         expect(amountOwned).toEqual(3);
       });
