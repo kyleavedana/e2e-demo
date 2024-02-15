@@ -37,4 +37,49 @@ describe("after buying three coins", () => {
         expect(coinsOwned).to.equal("Coins owned: 3");
       });
   });
+  it("market value correctly reflects the cost per coin", () => {
+    cy.visit("http://localhost:5173/");
+    cy.get(".ticket-name").contains("CoinA").parent().find("input").type("3");
+    cy.get(".ticket-name")
+      .contains("CoinA")
+      .parent()
+      .contains("button", "Buy")
+      .click();
+
+    cy.get(".ticket-name")
+      .contains("CoinA")
+      .parent()
+      .then((parentElement1) => {
+        let price = parentElement1
+          .find(".ticket-price")
+          .text()
+          .trim()
+          .replace(" / coins", "")
+          .replace("$", "");
+        price = parseInt(price);
+
+        cy.get(".inventory-item")
+          .contains("div", "CoinA")
+          .parent()
+          .then((parentElement) => {
+            let coinsOwned = parentElement
+              .find("div")
+              .eq(1)
+              .text()
+              .trim()
+              .replace("Coins owned: ", "");
+            coinsOwned = parseInt(coinsOwned);
+
+            let marketValue = parentElement
+              .find("div")
+              .eq(2)
+              .text()
+              .trim()
+              .replace("Market value: $", "");
+            marketValue = parseInt(marketValue);
+
+            expect(marketValue).to.equal(coinsOwned * price);
+          });
+      });
+  });
 });
