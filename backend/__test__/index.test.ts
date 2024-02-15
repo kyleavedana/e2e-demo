@@ -64,7 +64,7 @@ describe("testing the websocket", () => {
         const { coinId } = inventory[1];
         const amount = 3;
 
-        response = await request(`http://${DOMAIN}`)
+        await request(`http://${DOMAIN}`)
           .post("/purchase-coin")
           .send({ coinId, amount });
       })
