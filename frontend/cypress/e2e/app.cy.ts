@@ -19,3 +19,22 @@ describe("onLoad", () => {
     });
   });
 });
+
+describe("after buying three coins", () => {
+  it("coins owned has incremented by the quantity provided", () => {
+    cy.visit("http://localhost:5173/");
+    cy.get(".ticket-name").contains("CoinA").parent().find("input").type("3");
+    cy.get(".ticket-name")
+      .contains("CoinA")
+      .parent()
+      .contains("button", "Buy")
+      .click();
+    cy.get(".inventory-item")
+      .contains("div", "CoinA")
+      .parent()
+      .then((parentElement) => {
+        const coinsOwned = parentElement.find("div").eq(1).text().trim();
+        expect(coinsOwned).to.equal("Coins owned: 3");
+      });
+  });
+});
