@@ -64,13 +64,20 @@ describe("after buying three coins", () => {
     cy.get(".inventory-item")
       .contains("div", COINOPTION)
       .parent()
-      .then((parentElement) => {
+      .then(async (parentElement) => {
         const coinsOwned = getValue(
           parentElement,
           { selector: "div", order: 1 },
           ["Coins owned: "]
         );
         expect(coinsOwned).to.equal(3);
+        await buyCoins(COINOPTION);
+        const newCoinsOwned = getValue(
+          parentElement,
+          { selector: "div", order: 1 },
+          ["Coins owned: "]
+        );
+        expect(newCoinsOwned).to.equal(6);
       });
   });
   it("market value correctly reflects the cost per coin", async () => {
