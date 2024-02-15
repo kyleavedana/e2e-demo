@@ -1,6 +1,8 @@
+const BASEURL = "http://localhost:5173";
+
 describe("onLoad", () => {
   it("should begin with a $1000 USD balance", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit(BASEURL);
     cy.contains("div", "USD Balance: $").should((element) => {
       const textContent = element.text().trim();
       expect(textContent).to.equal("USD Balance: $1000");
@@ -9,26 +11,23 @@ describe("onLoad", () => {
   it("should have for coin options available", () => {
     cy.visit("http://localhost:5173/");
     cy.get(".ticket-name").should("have.length", 4);
-    cy.get(".ticket-name").then((elements) => {
-      const textSet = new Set<string>();
-      elements.each((index, element) => {
-        const innerText = Cypress.$(element).text().trim();
-        expect(textSet.has(innerText)).to.be.false;
-        textSet.add(innerText);
-      });
-    });
+    cy.checkUniqueInnerText(".ticket-name");
   });
 });
 
 describe("after buying three coins", () => {
-  it("coins owned has incremented by the quantity provided", () => {
-    cy.visit("http://localhost:5173/");
+  const buyCoins = async () => {
     cy.get(".ticket-name").contains("CoinA").parent().find("input").type("3");
     cy.get(".ticket-name")
       .contains("CoinA")
       .parent()
       .contains("button", "Buy")
       .click();
+  };
+
+  it("coins owned has incremented by the quantity provided", async () => {
+    cy.visit(BASEURL);
+    await buyCoins();
     cy.get(".inventory-item")
       .contains("div", "CoinA")
       .parent()
@@ -37,14 +36,9 @@ describe("after buying three coins", () => {
         expect(coinsOwned).to.equal("Coins owned: 3");
       });
   });
-  it("market value correctly reflects the cost per coin", () => {
-    cy.visit("http://localhost:5173/");
-    cy.get(".ticket-name").contains("CoinA").parent().find("input").type("3");
-    cy.get(".ticket-name")
-      .contains("CoinA")
-      .parent()
-      .contains("button", "Buy")
-      .click();
+  it("market value correctly reflects the cost per coin", async () => {
+    cy.visit(BASEURL);
+    await buyCoins();
 
     cy.get(".ticket-name")
       .contains("CoinA")

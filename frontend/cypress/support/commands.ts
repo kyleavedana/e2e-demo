@@ -35,3 +35,14 @@
 //     }
 //   }
 // }
+
+Cypress.Commands.add("checkUniqueInnerText", (selector: string) => {
+  cy.get(selector).then((elements) => {
+    const textSet = new Set<string>();
+    elements.each((index, element) => {
+      const innerText = Cypress.$(element).text().trim();
+      expect(textSet.has(innerText)).to.be.false;
+      textSet.add(innerText);
+    });
+  });
+});
