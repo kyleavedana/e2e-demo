@@ -11,7 +11,7 @@ interface Coin {
   price: number;
 }
 
-interface Inventory {
+export interface Inventory {
   coinId: number;
   amountOwned: number;
 }
