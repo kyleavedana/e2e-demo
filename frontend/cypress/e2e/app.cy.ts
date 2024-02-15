@@ -25,6 +25,34 @@ describe("after buying three coins", () => {
       .click();
   };
 
+  const getValue = (
+    parentElement: JQuery<HTMLElement>,
+    {
+      selector,
+      order,
+    }: {
+      selector?: string;
+      order?: number;
+    },
+    stringsToRemove: string[]
+  ): number => {
+    let element = parentElement;
+    if (selector.trim() !== "") {
+      element = element.find(selector);
+    }
+    if (order) {
+      element = element.eq(order);
+    }
+    let stringValue = element.text().trim();
+    if (Array.isArray(stringsToRemove) && stringsToRemove.length) {
+      stringsToRemove.forEach((item) => {
+        stringValue = stringValue.replace(item, "");
+      });
+    }
+    const numberValue = parseInt(stringValue);
+    return numberValue;
+  };
+
   it("coins owned has incremented by the quantity provided", async () => {
     cy.visit(BASEURL);
     await buyCoins();
@@ -43,34 +71,30 @@ describe("after buying three coins", () => {
     cy.get(".ticket-name")
       .contains("CoinA")
       .parent()
-      .then((parentElement1) => {
-        let price: string | number = parentElement1
-          .find(".ticket-price")
-          .text()
-          .trim()
-          .replace(" / coins", "")
-          .replace("$", "");
-        price = parseInt(price);
+      .then((parentElement) => {
+        const price = getValue(
+          parentElement,
+          {
+            selector: ".ticket-price",
+          },
+          [" / coins", "$"]
+        );
 
         cy.get(".inventory-item")
           .contains("div", "CoinA")
           .parent()
-          .then((parentElement) => {
-            let coinsOwned: string | number = parentElement
-              .find("div")
-              .eq(1)
-              .text()
-              .trim()
-              .replace("Coins owned: ", "");
-            coinsOwned = parseInt(coinsOwned);
+          .then((parentElement1) => {
+            const coinsOwned = getValue(
+              parentElement1,
+              { selector: "div", order: 1 },
+              ["Coins owned: "]
+            );
 
-            let marketValue: string | number = parentElement
-              .find("div")
-              .eq(2)
-              .text()
-              .trim()
-              .replace("Market value: $", "");
-            marketValue = parseInt(marketValue);
+            const marketValue = getValue(
+              parentElement1,
+              { selector: "div", order: 2 },
+              ["Market value: $"]
+            );
 
             if (typeof price !== "number") throw new Error("NaN");
             expect(marketValue).to.equal(coinsOwned * price);
