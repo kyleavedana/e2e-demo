@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { Inventory } from "../src";
+import { Inventory, Coin } from "../src";
 
 describe("testing the endpoints", () => {
   afterEach(() => request.closeAll());
@@ -18,4 +18,36 @@ describe("testing the endpoints", () => {
     const status = response.body.success;
     expect(status).toEqual(true);
   });
+});
+
+describe("testing the websocket", () => {
+  afterEach(() => request.closeAll());
+
+  it("test that CoinB increments by one dollar with each message over a period of time", async () => {
+    await request("ws://localhost:3100")
+      .ws("/")
+      .expectJson((data) => {
+        const result: {
+          coins: Coin[];
+          inventory: Inventory[];
+          time: number;
+        } = data;
+
+        const coinB = result.coins.find((coin) => coin.name === "CoinB");
+
+        expect(coinB?.price).toEqual(100);
+      })
+      .wait(5000)
+      .expectJson((data) => {
+        const result: {
+          coins: Coin[];
+          inventory: Inventory[];
+          time: number;
+        } = data;
+
+        const coinB = result.coins.find((coin) => coin.name === "CoinB");
+
+        expect(coinB?.price).toEqual(101);
+      });
+  }, 10000);
 });

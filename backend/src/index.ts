@@ -5,7 +5,7 @@ import WebSocket from "ws";
 const app: Express = require("express")();
 const port = process.env.PORT || 3100;
 
-interface Coin {
+export interface Coin {
   id: number;
   name: string;
   price: number;
