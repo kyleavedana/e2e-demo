@@ -3,6 +3,11 @@ import { Inventory, Coin } from "../src";
 
 const DOMAIN = "localhost:3100";
 
+/**
+ * A simple function for coin purchase
+ *
+ * @return {*}
+ */
 const purchaseCoin = async () => {
   let response = await request(`http://${DOMAIN}`).get("/get-inventory");
   const inventory: Inventory[] = response.body;
@@ -39,12 +44,14 @@ describe("testing the websocket", () => {
   it("test that CoinB increments by one dollar with each message over a period of time", async () => {
     await request(`ws://${DOMAIN}`)
       .ws("/")
+      // Get initial price
       .expectJson((data) => {
         const result: wsResult = data;
         const coinB = result.coins.find((coin) => coin.name === "CoinB");
         expect(coinB?.price).toEqual(100);
       })
       .wait(5000)
+      // Get new price
       .expectJson((data) => {
         const result: wsResult = data;
         const coinB = result.coins.find((coin) => coin.name === "CoinB");
@@ -56,10 +63,10 @@ describe("testing the websocket", () => {
     await request(`ws://${DOMAIN}`)
       .ws("/")
       .expectJson()
+      // Purchase coin
       .exec(async () => {
         await purchaseCoin();
       })
-      .wait(5000)
       .expectJson((data) => {
         const result: wsResult = data;
         const amountOwned = result.inventory[1].amountOwned;
